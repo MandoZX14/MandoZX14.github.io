@@ -119,30 +119,48 @@ h1 {
 
 </div>
 
-<script>
-// Importe Firebase (CDN)
-import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
-import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
+<script type="module">
+  // 1. Importation des modules Firebase
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
+  import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
 
-const firebaseConfig = {
-  databaseURL: "TON_URL_FIREBASE" // Ex: https://projet-sin-default-rtdb.firebaseio.com/
-};
+  // 2. Configuration (Ton URL exacte de l'image)
+  const firebaseConfig = {
+    databaseURL: "https://sation-44d19-default-rtdb.europe-west1.firebasedatabase.app"
+  };
 
-const app = initializeApp(firebaseConfig);
-const db = getDatabase(app);
+  // 3. Initialisation
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
 
-// On écoute les données "meteo"
-onValue(ref(db, 'meteo'), (snapshot) => {
-  const data = snapshot.val();
-  
-  // Mise à jour de la jauge Température (V1)
-  document.getElementById("temp").style.width = (data.temperature / 40) * 100 + "%";
-  document.getElementById("tempVal").textContent = data.temperature + " °C";
+  // 4. Écoute en temps réel du dossier "meteo"
+  onValue(ref(db, 'meteo'), (snapshot) => {
+    const data = snapshot.val();
+    if (!data) return;
 
-  // Tu fais pareil pour les autres (hum, air, etc.)
-});
+    // Mise à jour Température
+    if(data.temperature !== undefined) {
+      document.getElementById("temp").style.width = (data.temperature / 40) * 100 + "%";
+      document.getElementById("tempVal").textContent = data.temperature + " °C";
+    }
+
+    // Mise à jour Humidité
+    if(data.humidite !== undefined) {
+      document.getElementById("hum").style.width = data.humidite + "%";
+      document.getElementById("humVal").textContent = data.humidite + " %";
+    }
+
+    // Mise à jour Air (Qualité)
+    if(data.air !== undefined) {
+      document.getElementById("air").style.width = data.air + "%";
+      document.getElementById("airVal").textContent = data.air + " AQI";
+    }
+    
+    // Ajoute les autres capteurs ici si besoin
+  });
 </script>
 
 </body>
 </html>
+
 
