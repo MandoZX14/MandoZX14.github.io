@@ -1,178 +1,150 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8">
-<title>Météo Live</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Station Météo Mando</title>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --text-main: #f8fafc;
+            --accent: #38bdf8;
+        }
 
-<style>
-body {
-  margin: 0;
-  font-family: Arial, sans-serif;
-  background: linear-gradient(135deg, #141e30, #243b55);
-  color: white;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-}
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
 
-.container {
-  background: rgba(0,0,0,0.35);
-  padding: 30px;
-  border-radius: 20px;
-  width: 360px;
-  box-shadow: 0 15px 40px rgba(0,0,0,0.5);
-}
+        h1 { margin-bottom: 30px; font-weight: 300; letter-spacing: 2px; }
 
-h1 {
-  text-align: center;
-  margin-bottom: 25px;
-}
+        /* Grille des cartes */
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 20px;
+            width: 100%;
+            max-width: 800px;
+        }
 
-.gauge {
-  margin-bottom: 20px;
-}
+        /* Style de chaque carte */
+        .card {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255,255,255,0.05);
+        }
 
-.label {
-  margin-bottom: 6px;
-  font-weight: bold;
-}
+        .card-label { font-size: 0.9rem; color: #94a3b8; margin-bottom: 10px; }
+        .card-value { font-size: 1.8rem; font-weight: bold; color: var(--accent); }
+        .unit { font-size: 1rem; margin-left: 5px; color: #cbd5e1; }
 
-.bar {
-  background: rgba(255,255,255,0.2);
-  border-radius: 20px;
-  overflow: hidden;
-  height: 18px;
-}
+        /* Barre de progression sous le chiffre */
+        .mini-bar {
+            height: 6px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            margin-top: 15px;
+            overflow: hidden;
+        }
+        .fill { height: 100%; width: 0%; transition: width 1s ease-in-out; background: var(--accent); }
 
-.fill {
-  height: 100%;
-  width: 0%;
-  border-radius: 20px;
-  transition: width 1.5s ease;
-}
-
-.value {
-  margin-top: 4px;
-  text-align: right;
-  font-size: 13px;
-}
-
-/* Couleurs spécifiques */
-.temp { background: linear-gradient(90deg, #ff9800, #ff5722); }
-.hum  { background: linear-gradient(90deg, #00e5ff, #0288d1); }
-.wind { background: linear-gradient(90deg, #cfd8dc, #90a4ae); }
-.uv   { background: linear-gradient(90deg, #ffee58, #f44336); }
-.sun  { background: linear-gradient(90deg, #ffd740, #ffab00); }
-.pres { background: linear-gradient(90deg, #b39ddb, #673ab7); }
-.air  { background: linear-gradient(90deg, #4caf50, #f44336); }
-
-</style>
+        /* Couleurs d'accentuation */
+        .temp-color { background: linear-gradient(90deg, #f59e0b, #ef4444); }
+        .hum-color { background: linear-gradient(90deg, #3b82f6, #06b6d4); }
+        .air-color { background: linear-gradient(90deg, #10b981, #f59e0b); }
+    </style>
 </head>
-
 <body>
 
-<div class="container">
-  <h1>🌦️ Météo Live</h1>
+    <h1>📊 STATION MÉTÉO LIVE</h1>
 
-  <div class="gauge">
-    <div class="label">🌡️ Température</div>
-    <div class="bar"><div class="fill temp" id="temp"></div></div>
-    <div class="value" id="tempVal"></div>
-  </div>
+    <div class="dashboard">
+        <div class="card">
+            <div class="card-label">🌡️ TEMPÉRATURE</div>
+            <div class="card-value"><span id="tempVal">--</span><span class="unit">°C</span></div>
+            <div class="mini-bar"><div class="fill temp-color" id="tempBar"></div></div>
+        </div>
 
-  <div class="gauge">
-    <div class="label">💧 Humidité</div>
-    <div class="bar"><div class="fill hum" id="hum"></div></div>
-    <div class="value" id="humVal"></div>
-  </div>
+        <div class="card">
+            <div class="card-label">💧 HUMIDITÉ</div>
+            <div class="card-value"><span id="humVal">--</span><span class="unit">%</span></div>
+            <div class="mini-bar"><div class="fill hum-color" id="humBar"></div></div>
+        </div>
 
-  <div class="gauge">
-    <div class="label">🌬️ Vent</div>
-    <div class="bar"><div class="fill wind" id="wind"></div></div>
-    <div class="value" id="windVal"></div>
-  </div>
+        <div class="card">
+            <div class="card-label">🌬️ VENT</div>
+            <div class="card-value"><span id="windVal">--</span><span class="unit">km/h</span></div>
+            <div class="mini-bar"><div class="fill" id="windBar" style="background:#94a3b8"></div></div>
+        </div>
 
-  <div class="gauge">
-    <div class="label">☀️ Indice UV</div>
-    <div class="bar"><div class="fill uv" id="uv"></div></div>
-    <div class="value" id="uvVal"></div>
-  </div>
+        <div class="card">
+            <div class="card-label">⏱️ PRESSION</div>
+            <div class="card-value" style="font-size: 1.4rem;"><span id="pressVal">--</span><span class="unit">hPa</span></div>
+            <div class="mini-bar"><div class="fill" id="pressBar" style="background:#a78bfa"></div></div>
+        </div>
 
-  <div class="gauge">
-    <div class="label">🌤️ Ensoleillement</div>
-    <div class="bar"><div class="fill sun" id="sun"></div></div>
-    <div class="value" id="sunVal"></div>
-  </div>
+        <div class="card">
+            <div class="card-label">🌫️ AIR (AQI)</div>
+            <div class="card-value"><span id="airVal">--</span></div>
+            <div class="mini-bar"><div class="fill air-color" id="airBar"></div></div>
+        </div>
+    </div>
 
-  <div class="gauge">
-    <div class="label">⏱️ Pression</div>
-    <div class="bar"><div class="fill pres" id="press"></div></div>
-    <div class="value" id="pressVal"></div>
-  </div>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
+        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
 
-  <div class="gauge">
-    <div class="label">🌫️ Qualité de l’air</div>
-    <div class="bar"><div class="fill air" id="air"></div></div>
-    <div class="value" id="airVal"></div>
-  </div>
+        const firebaseConfig = {
+            databaseURL: "https://sation-44d19-default-rtdb.europe-west1.firebasedatabase.app"
+        };
 
-</div>
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
 
-<script type="module">
-  // 1. Importation des modules Firebase
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
-  import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
+        onValue(ref(db, 'meteo'), (snapshot) => {
+            const data = snapshot.val();
+            if (!data) return;
 
-  // 2. Configuration (Ton URL exacte de l'image)
-  const firebaseConfig = {
-    databaseURL: "https://sation-44d19-default-rtdb.europe-west1.firebasedatabase.app"
-  };
+            // Mise à jour Temp (Max 45°C pour le calcul %)
+            if(data.temperature !== undefined) {
+                document.getElementById("tempVal").textContent = data.temperature;
+                document.getElementById("tempBar").style.width = (data.temperature / 45) * 100 + "%";
+            }
 
-  // 3. Initialisation
-  const app = initializeApp(firebaseConfig);
-  const db = getDatabase(app);
+            // Mise à jour Humidité
+            if(data.humidite !== undefined) {
+                document.getElementById("humVal").textContent = data.humidite;
+                document.getElementById("humBar").style.width = data.humidite + "%";
+            }
 
-  // 4. Écoute en temps réel du dossier "meteo"
-  onValue(ref(db, 'meteo'), (snapshot) => {
-    const data = snapshot.val();
-    if (!data) return;
+            // Mise à jour Vent (Max 100 km/h pour le %)
+            if(data.vent !== undefined) {
+                document.getElementById("windVal").textContent = data.vent;
+                document.getElementById("windBar").style.width = data.vent + "%";
+            }
 
-    // Mise à jour Température
-    if(data.temperature !== undefined) {
-      document.getElementById("temp").style.width = (data.temperature / 40) * 100 + "%";
-      document.getElementById("tempVal").textContent = data.temperature + " °C";
-    }
+            // Mise à jour Pression (950 à 1050 hPa)
+            if(data.pression !== undefined) {
+                document.getElementById("pressVal").textContent = data.pression;
+                document.getElementById("pressBar").style.width = ((data.pression - 950) / 100) * 100 + "%";
+            }
 
-    // Mise à jour Humidité
-    if(data.humidite !== undefined) {
-      document.getElementById("hum").style.width = data.humidite + "%";
-      document.getElementById("humVal").textContent = data.humidite + " %";
-    }
-
-    // Mise à jour Air (Qualité)
-    if(data.air !== undefined) {
-      document.getElementById("air").style.width = data.air + "%";
-      document.getElementById("airVal").textContent = data.air + " AQI";
-    }
-    // Mise à jour Vent
-    if(data.vent !== undefined) {
-      document.getElementById("wind").style.width = data.vent + "%";
-      document.getElementById("windVal").textContent = data.vent + " km/h";
-    }
-
-    // Mise à jour Pression
-    if(data.pression !== undefined) {
-      // Calcul pour transformer la pression (950-1050 hPa) en barre de 0-100%
-      document.getElementById("press").style.width = ((data.pression - 950) / 100) * 100 + "%";
-      document.getElementById("pressVal").textContent = data.pression + " hPa";
-    }
-    // Ajoute les autres capteurs ici si besoin
-  });
-</script>
-
+            // Mise à jour Air
+            if(data.air !== undefined) {
+                document.getElementById("airVal").textContent = data.air;
+                document.getElementById("airBar").style.width = data.air + "%";
+            }
+        });
+    </script>
 </body>
 </html>
-
-
-
