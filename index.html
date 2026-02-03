@@ -155,12 +155,24 @@ h1 {
       document.getElementById("air").style.width = data.air + "%";
       document.getElementById("airVal").textContent = data.air + " AQI";
     }
-    
+    // Mise à jour Vent
+    if(data.vent !== undefined) {
+      document.getElementById("wind").style.width = data.vent + "%";
+      document.getElementById("windVal").textContent = data.vent + " km/h";
+    }
+
+    // Mise à jour Pression
+    if(data.pression !== undefined) {
+      // Calcul pour transformer la pression (950-1050 hPa) en barre de 0-100%
+      document.getElementById("press").style.width = ((data.pression - 950) / 100) * 100 + "%";
+      document.getElementById("pressVal").textContent = data.pression + " hPa";
+    }
     // Ajoute les autres capteurs ici si besoin
   });
 </script>
 
 </body>
 </html>
+
 
 
