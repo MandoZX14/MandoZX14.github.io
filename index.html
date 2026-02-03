@@ -1,11 +1,152 @@
 <!DOCTYPE html>
-<html>
+<html lang="fr">
 <head>
-  <meta charset="utf-8">
-  <title>Mon site</title>
+<meta charset="UTF-8">
+<title>Météo Live</title>
+
+<style>
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: linear-gradient(135deg, #141e30, #243b55);
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
+
+.container {
+  background: rgba(0,0,0,0.35);
+  padding: 30px;
+  border-radius: 20px;
+  width: 360px;
+  box-shadow: 0 15px 40px rgba(0,0,0,0.5);
+}
+
+h1 {
+  text-align: center;
+  margin-bottom: 25px;
+}
+
+.gauge {
+  margin-bottom: 20px;
+}
+
+.label {
+  margin-bottom: 6px;
+  font-weight: bold;
+}
+
+.bar {
+  background: rgba(255,255,255,0.2);
+  border-radius: 20px;
+  overflow: hidden;
+  height: 18px;
+}
+
+.fill {
+  height: 100%;
+  width: 0%;
+  border-radius: 20px;
+  transition: width 1.5s ease;
+}
+
+.value {
+  margin-top: 4px;
+  text-align: right;
+  font-size: 13px;
+}
+
+/* Couleurs spécifiques */
+.temp { background: linear-gradient(90deg, #ff9800, #ff5722); }
+.hum  { background: linear-gradient(90deg, #00e5ff, #0288d1); }
+.wind { background: linear-gradient(90deg, #cfd8dc, #90a4ae); }
+.uv   { background: linear-gradient(90deg, #ffee58, #f44336); }
+.sun  { background: linear-gradient(90deg, #ffd740, #ffab00); }
+.pres { background: linear-gradient(90deg, #b39ddb, #673ab7); }
+.air  { background: linear-gradient(90deg, #4caf50, #f44336); }
+
+</style>
 </head>
+
 <body>
-  <h1>Bienvenue sur mon site</h1>
-  <p>Mon site est en ligne 🎉</p>
+
+<div class="container">
+  <h1>🌦️ Météo Live</h1>
+
+  <div class="gauge">
+    <div class="label">🌡️ Température</div>
+    <div class="bar"><div class="fill temp" id="temp"></div></div>
+    <div class="value" id="tempVal"></div>
+  </div>
+
+  <div class="gauge">
+    <div class="label">💧 Humidité</div>
+    <div class="bar"><div class="fill hum" id="hum"></div></div>
+    <div class="value" id="humVal"></div>
+  </div>
+
+  <div class="gauge">
+    <div class="label">🌬️ Vent</div>
+    <div class="bar"><div class="fill wind" id="wind"></div></div>
+    <div class="value" id="windVal"></div>
+  </div>
+
+  <div class="gauge">
+    <div class="label">☀️ Indice UV</div>
+    <div class="bar"><div class="fill uv" id="uv"></div></div>
+    <div class="value" id="uvVal"></div>
+  </div>
+
+  <div class="gauge">
+    <div class="label">🌤️ Ensoleillement</div>
+    <div class="bar"><div class="fill sun" id="sun"></div></div>
+    <div class="value" id="sunVal"></div>
+  </div>
+
+  <div class="gauge">
+    <div class="label">⏱️ Pression</div>
+    <div class="bar"><div class="fill pres" id="press"></div></div>
+    <div class="value" id="pressVal"></div>
+  </div>
+
+  <div class="gauge">
+    <div class="label">🌫️ Qualité de l’air</div>
+    <div class="bar"><div class="fill air" id="air"></div></div>
+    <div class="value" id="airVal"></div>
+  </div>
+
+</div>
+
+<script>
+// === VALEURS MÉTÉO (MODIFIABLES) ===
+let temperature = 24;  // °C (max 40)
+let humidity = 60;     // %
+let wind = 35;         // km/h (max 100)
+let uv = 7;            // indice UV (max 11)
+let sunshine = 80;     // % d’ensoleillement
+let pressure = 1015;   // hPa (950–1050)
+let airQuality = 40;   // AQI (0 bon → 100 mauvais)
+
+// === CONVERSION EN % ===
+document.getElementById("temp").style.width = (temperature / 40) * 100 + "%";
+document.getElementById("hum").style.width = humidity + "%";
+document.getElementById("wind").style.width = wind + "%";
+document.getElementById("uv").style.width = (uv / 11) * 100 + "%";
+document.getElementById("sun").style.width = sunshine + "%";
+document.getElementById("press").style.width = ((pressure - 950) / 100) * 100 + "%";
+document.getElementById("air").style.width = airQuality + "%";
+
+// === TEXTE ===
+document.getElementById("tempVal").textContent = temperature + " °C";
+document.getElementById("humVal").textContent = humidity + " %";
+document.getElementById("windVal").textContent = wind + " km/h";
+document.getElementById("uvVal").textContent = "Indice " + uv;
+document.getElementById("sunVal").textContent = sunshine + " %";
+document.getElementById("pressVal").textContent = pressure + " hPa";
+document.getElementById("airVal").textContent = airQuality + " AQI";
+</script>
+
 </body>
 </html>
