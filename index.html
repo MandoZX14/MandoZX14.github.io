@@ -57,6 +57,7 @@
 
         .temp-color { background: linear-gradient(90deg, #f59e0b, #ef4444); }
         .hum-color { background: linear-gradient(90deg, #3b82f6, #06b6d4); }
+        .uv-color { background: linear-gradient(90deg, #a78bfa, #7c3aed); } /* Violet pour UV */
         .air-color { background: linear-gradient(90deg, #10b981, #f59e0b); }
     </style>
 </head>
@@ -78,9 +79,9 @@
         </div>
 
         <div class="card">
-            <div class="card-label">🌬️ VENT</div>
-            <div class="card-value"><span id="windVal">--</span><span class="unit">km/h</span></div>
-            <div class="mini-bar"><div class="fill" id="windBar" style="background:#94a3b8"></div></div>
+            <div class="card-label">☀️ INDICE UV</div>
+            <div class="card-value"><span id="uvVal">--</span><span class="unit">Index</span></div>
+            <div class="mini-bar"><div class="fill uv-color" id="uvBar"></div></div>
         </div>
 
         <div class="card">
@@ -111,7 +112,6 @@
             const data = snapshot.val();
             if (!data) return;
 
-            // Mise à jour en temps réel
             if(data.temperature !== undefined) {
                 document.getElementById("tempVal").textContent = data.temperature;
                 document.getElementById("tempBar").style.width = Math.min((data.temperature / 45) * 100, 100) + "%";
@@ -120,9 +120,10 @@
                 document.getElementById("humVal").textContent = data.humidite;
                 document.getElementById("humBar").style.width = data.humidite + "%";
             }
-            if(data.vent !== undefined) {
-                document.getElementById("windVal").textContent = data.vent;
-                document.getElementById("windBar").style.width = Math.min(data.vent, 100) + "%";
+            // MISE À JOUR UV
+            if(data.uv !== undefined) {
+                document.getElementById("uvVal").textContent = data.uv;
+                document.getElementById("uvBar").style.width = Math.min((data.uv / 11) * 100, 100) + "%"; // Max index 11
             }
             if(data.pression !== undefined) {
                 document.getElementById("pressVal").textContent = data.pression;
