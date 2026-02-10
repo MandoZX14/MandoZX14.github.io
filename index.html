@@ -44,20 +44,35 @@
 
         .card-label { font-size: 0.9rem; color: #94a3b8; margin-bottom: 10px; }
         .card-value { font-size: 1.8rem; font-weight: bold; color: var(--accent); }
-        .unit { font-size: 1rem; margin-left: 5px; color: #cbd5e1; }
+        .unit { font-size: 0.9rem; margin-left: 5px; color: #cbd5e1; }
 
         .mini-bar {
-            height: 6px;
-            background: rgba(255,255,255,0.1);
+            height: 100%; /* S'adapte au conteneur */
+            background: rgba(255,255,255,0.05);
             border-radius: 10px;
-            margin-top: 15px;
             overflow: hidden;
         }
-        .fill { height: 100%; width: 0%; transition: width 1s ease-in-out; background: var(--accent); }
+        
+        /* Conteneur de la barre avec trait blanc */
+        .bar-container {
+            height: 10px;
+            margin-top: 15px;
+            border: 1.5px solid white; /* Le trait blanc tout autour */
+            border-radius: 10px;
+            padding: 1px; /* Espacement léger pour voir le trait */
+        }
 
+        .fill { height: 100%; width: 0%; transition: width 1s ease-in-out; }
+
+        /* Couleurs */
         .temp-color { background: linear-gradient(90deg, #f59e0b, #ef4444); }
         .hum-color { background: linear-gradient(90deg, #3b82f6, #06b6d4); }
-        .uv-color { background: linear-gradient(90deg, #a78bfa, #7c3aed); } /* Violet pour UV */
+        
+        /* Dégradé UV : Vert -> Jaune -> Orange -> Rouge -> Violet */
+        .uv-gradient { 
+            background: linear-gradient(90deg, #22c55e, #eab308, #f97316, #ef4444, #a855f7); 
+        }
+
         .air-color { background: linear-gradient(90deg, #10b981, #f59e0b); }
     </style>
 </head>
@@ -69,31 +84,33 @@
         <div class="card">
             <div class="card-label">🌡️ TEMPÉRATURE</div>
             <div class="card-value"><span id="tempVal">--</span><span class="unit">°C</span></div>
-            <div class="mini-bar"><div class="fill temp-color" id="tempBar"></div></div>
+            <div class="bar-container"><div class="fill temp-color" id="tempBar"></div></div>
         </div>
 
         <div class="card">
             <div class="card-label">💧 HUMIDITÉ</div>
             <div class="card-value"><span id="humVal">--</span><span class="unit">%</span></div>
-            <div class="mini-bar"><div class="fill hum-color" id="humBar"></div></div>
+            <div class="bar-container"><div class="fill hum-color" id="humBar"></div></div>
         </div>
 
         <div class="card">
             <div class="card-label">☀️ INDICE UV</div>
-            <div class="card-value"><span id="uvVal">--</span><span class="unit">Index</span></div>
-            <div class="mini-bar"><div class="fill uv-color" id="uvBar"></div></div>
+            <div class="card-value"><span id="uvVal">--</span><span class="unit">/ 100</span></div>
+            <div class="bar-container">
+                <div class="fill uv-gradient" id="uvBar"></div>
+            </div>
         </div>
 
         <div class="card">
             <div class="card-label">⏱️ PRESSION</div>
             <div class="card-value" style="font-size: 1.4rem;"><span id="pressVal">--</span><span class="unit">hPa</span></div>
-            <div class="mini-bar"><div class="fill" id="pressBar" style="background:#a78bfa"></div></div>
+            <div class="bar-container"><div class="fill" id="pressBar" style="background:#a78bfa"></div></div>
         </div>
 
         <div class="card">
             <div class="card-label">🌫️ AIR (AQI)</div>
             <div class="card-value"><span id="airVal">--</span></div>
-            <div class="mini-bar"><div class="fill air-color" id="airBar"></div></div>
+            <div class="bar-container"><div class="fill air-color" id="airBar"></div></div>
         </div>
     </div>
 
@@ -120,10 +137,10 @@
                 document.getElementById("humVal").textContent = data.humidite;
                 document.getElementById("humBar").style.width = data.humidite + "%";
             }
-            // MISE À JOUR UV
+            // MISE À JOUR UV (0 à 100)
             if(data.uv !== undefined) {
                 document.getElementById("uvVal").textContent = data.uv;
-                document.getElementById("uvBar").style.width = Math.min((data.uv / 11) * 100, 100) + "%"; // Max index 11
+                document.getElementById("uvBar").style.width = Math.min(data.uv, 100) + "%";
             }
             if(data.pression !== undefined) {
                 document.getElementById("pressVal").textContent = data.pression;
