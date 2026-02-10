@@ -3,121 +3,166 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Station Météo Live</title>
+    <title>Météo — Station Live STI2D</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet">
     <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         :root {
-            --bg-color: #0f172a;
-            --card-bg: #1e293b;
-            --text-main: #f8fafc;
-            --accent: #38bdf8;
+            --primary-dark: #0a1628;
+            --primary-blue: #1e3a5f;
+            --accent-gold: #d4af37;
+            --text-light: #e8edf2;
+            --text-muted: #98a8b8;
+            --card-bg: rgba(30, 58, 95, 0.3);
+            --glass-bg: rgba(255, 255, 255, 0.05);
         }
 
         body {
-            margin: 0;
-            font-family: 'Segoe UI', sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 20px;
+            font-family: 'Barlow', sans-serif;
+            background: linear-gradient(135deg, #0a1628 0%, #1e3a5f 50%, #2d5a8c 100%);
+            color: var(--text-light);
+            min-height: 100vh;
+            overflow-x: hidden;
         }
 
-        h1 { margin-bottom: 30px; font-weight: 300; letter-spacing: 2px; }
+        .grain {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            opacity: 0.03; pointer-events: none;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' /%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' /%3E%3C/svg%3E");
+            z-index: 1;
+        }
 
-        .dashboard {
+        header {
+            position: relative; z-index: 10;
+            padding: 2rem 5%;
+            border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+            backdrop-filter: blur(10px);
+            background: var(--glass-bg);
+        }
+
+        .logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5rem; font-weight: 900;
+            background: linear-gradient(135deg, var(--accent-gold), #f4e4b3);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+
+        main { position: relative; z-index: 10; max-width: 1400px; margin: 0 auto; padding: 3rem 5%; }
+
+        .hero-section { text-align: center; padding: 2rem 0; }
+        .location-name { font-family: 'Playfair Display', serif; font-size: 4rem; margin-bottom: 1rem; }
+        
+        .current-weather {
+            display: flex; justify-content: center; align-items: center;
+            gap: 4rem; margin-bottom: 4rem;
+        }
+
+        .weather-icon-large { font-size: 10rem; animation: float 3s ease-in-out infinite; }
+        @keyframes float { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-20px); } }
+
+        .temperature { font-size: 8rem; font-weight: 300; }
+        .weather-description { font-size: 2rem; color: var(--accent-gold); text-transform: capitalize; }
+
+        .weather-details {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-            gap: 20px;
-            width: 100%;
-            max-width: 800px;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
         }
 
-        .card {
-            background: var(--card-bg);
-            padding: 20px;
-            border-radius: 15px;
+        .detail-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            border-radius: 20px;
+            padding: 2rem;
             text-align: center;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-            border: 1px solid rgba(255,255,255,0.05);
+            transition: 0.3s;
         }
 
-        .card-label { font-size: 0.9rem; color: #94a3b8; margin-bottom: 10px; }
-        .card-value { font-size: 1.8rem; font-weight: bold; color: var(--accent); }
-        .unit { font-size: 0.9rem; margin-left: 5px; color: #cbd5e1; }
+        .detail-label { font-size: 0.9rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 1rem; }
+        .detail-value { font-size: 2.5rem; font-weight: 600; }
 
-        .mini-bar {
-            height: 100%; /* S'adapte au conteneur */
-            background: rgba(255,255,255,0.05);
-            border-radius: 10px;
-            overflow: hidden;
-        }
-        
-        /* Conteneur de la barre avec trait blanc */
-        .bar-container {
-            height: 10px;
+        /* Style spécifique pour la barre UV demandée */
+        .uv-bar-container {
+            height: 14px;
             margin-top: 15px;
-            border: 1.5px solid white; /* Le trait blanc tout autour */
+            border: 2px solid white; /* Trait blanc entourant */
             border-radius: 10px;
-            padding: 1px; /* Espacement léger pour voir le trait */
+            padding: 2px;
+            background: rgba(0,0,0,0.2);
+        }
+        .uv-fill {
+            height: 100%; width: 0%;
+            border-radius: 5px;
+            background: linear-gradient(90deg, #22c55e, #eab308, #f97316, #ef4444, #a855f7); /* Dégradé vert à violet */
+            transition: width 1s ease-in-out;
         }
 
-        .fill { height: 100%; width: 0%; transition: width 1s ease-in-out; }
-
-        /* Couleurs */
-        .temp-color { background: linear-gradient(90deg, #f59e0b, #ef4444); }
-        .hum-color { background: linear-gradient(90deg, #3b82f6, #06b6d4); }
-        
-        /* Dégradé UV : Vert -> Jaune -> Orange -> Rouge -> Violet */
-        .uv-gradient { 
-            background: linear-gradient(90deg, #22c55e, #eab308, #f97316, #ef4444, #a855f7); 
-        }
-
-        .air-color { background: linear-gradient(90deg, #10b981, #f59e0b); }
+        footer { text-align: center; padding: 3rem; border-top: 1px solid rgba(212, 175, 55, 0.2); margin-top: 4rem; color: var(--text-muted); }
     </style>
 </head>
 <body>
-
-    <h1>📊 STATION MÉTÉO LIVE</h1>
-
-    <div class="dashboard">
-        <div class="card">
-            <div class="card-label">🌡️ TEMPÉRATURE</div>
-            <div class="card-value"><span id="tempVal">--</span><span class="unit">°C</span></div>
-            <div class="bar-container"><div class="fill temp-color" id="tempBar"></div></div>
+    <div class="grain"></div>
+    
+    <header>
+        <div class="nav-container" style="display:flex; justify-content:center;">
+            <div class="logo">MÉTÉO CONNECTÉE</div>
         </div>
+    </header>
 
-        <div class="card">
-            <div class="card-label">💧 HUMIDITÉ</div>
-            <div class="card-value"><span id="humVal">--</span><span class="unit">%</span></div>
-            <div class="bar-container"><div class="fill hum-color" id="humBar"></div></div>
-        </div>
+    <main>
+        <section class="hero-section">
+            <h1 class="location-name">Ma Station Live</h1>
+            <p class="current-date" id="currentDate">--</p>
 
-        <div class="card">
-            <div class="card-label">☀️ INDICE UV</div>
-            <div class="card-value"><span id="uvVal">--</span><span class="unit">/ 100</span></div>
-            <div class="bar-container">
-                <div class="fill uv-gradient" id="uvBar"></div>
+            <div class="current-weather">
+                <div class="weather-icon-large" id="mainIcon">🌡️</div>
+                <div class="temperature-display">
+                    <div>
+                        <span class="temperature" id="tempVal">--</span>
+                        <span style="font-size:3rem">°C</span>
+                    </div>
+                    <div class="weather-description" id="statusMsg">Connexion en cours...</div>
+                </div>
             </div>
-        </div>
+        </section>
 
-        <div class="card">
-            <div class="card-label">⏱️ PRESSION</div>
-            <div class="card-value" style="font-size: 1.4rem;"><span id="pressVal">--</span><span class="unit">hPa</span></div>
-            <div class="bar-container"><div class="fill" id="pressBar" style="background:#a78bfa"></div></div>
-        </div>
+        <section class="weather-details">
+            <div class="detail-card">
+                <div class="detail-label">💧 Humidité</div>
+                <div class="detail-value"><span id="humVal">--</span> %</div>
+            </div>
+            
+            <div class="detail-card">
+                <div class="detail-label">☀️ Indice UV (1-100)</div>
+                <div class="detail-value" id="uvVal">--</div>
+                <div class="uv-bar-container">
+                    <div class="uv-fill" id="uvBar"></div>
+                </div>
+            </div>
 
-        <div class="card">
-            <div class="card-label">🌫️ AIR (AQI)</div>
-            <div class="card-value"><span id="airVal">--</span></div>
-            <div class="bar-container"><div class="fill air-color" id="airBar"></div></div>
-        </div>
-    </div>
+            <div class="detail-card">
+                <div class="detail-label">🌡️ Pression</div>
+                <div class="detail-value"><span id="pressVal">--</span> hPa</div>
+            </div>
+
+            <div class="detail-card">
+                <div class="detail-label">🌫️ Qualité Air</div>
+                <div class="detail-value"><span id="airVal">--</span></div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2026 — Station de Surveillance STI2D</p>
+    </footer>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
         import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
 
+        // CONFIGURATION FIREBASE
         const firebaseConfig = {
             databaseURL: "https://sation-44d19-default-rtdb.europe-west1.firebasedatabase.app"
         };
@@ -125,30 +170,26 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
+        // Mise à jour date
+        const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+        document.getElementById('currentDate').textContent = new Date().toLocaleDateString('fr-FR', options);
+
+        // ÉCOUTE DES DONNÉES CAPTEURS
         onValue(ref(db, 'meteo'), (snapshot) => {
             const data = snapshot.val();
             if (!data) return;
 
-            if(data.temperature !== undefined) {
-                document.getElementById("tempVal").textContent = data.temperature;
-                document.getElementById("tempBar").style.width = Math.min((data.temperature / 45) * 100, 100) + "%";
-            }
-            if(data.humidite !== undefined) {
-                document.getElementById("humVal").textContent = data.humidite;
-                document.getElementById("humBar").style.width = data.humidite + "%";
-            }
-            // MISE À JOUR UV (0 à 100)
+            document.getElementById('statusMsg').textContent = "Données en direct";
+
+            if(data.temperature !== undefined) document.getElementById("tempVal").textContent = data.temperature;
+            if(data.humidite !== undefined) document.getElementById("humVal").textContent = data.humidite;
+            if(data.pression !== undefined) document.getElementById("pressVal").textContent = data.pression;
+            if(data.air !== undefined) document.getElementById("airVal").textContent = data.air;
+
+            // Logique UV (1 à 100)
             if(data.uv !== undefined) {
                 document.getElementById("uvVal").textContent = data.uv;
                 document.getElementById("uvBar").style.width = Math.min(data.uv, 100) + "%";
-            }
-            if(data.pression !== undefined) {
-                document.getElementById("pressVal").textContent = data.pression;
-                document.getElementById("pressBar").style.width = Math.min(((data.pression - 950) / 100) * 100, 100) + "%";
-            }
-            if(data.air !== undefined) {
-                document.getElementById("airVal").textContent = data.air;
-                document.getElementById("airBar").style.width = Math.min(data.air, 100) + "%";
             }
         });
     </script>
