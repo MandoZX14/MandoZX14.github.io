@@ -83,11 +83,10 @@
         .detail-label { font-size: 0.9rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 1rem; }
         .detail-value { font-size: 2.5rem; font-weight: 600; }
 
-        /* Style spécifique pour la barre UV demandée */
         .uv-bar-container {
             height: 14px;
             margin-top: 15px;
-            border: 2px solid white; /* Trait blanc entourant */
+            border: 2px solid white;
             border-radius: 10px;
             padding: 2px;
             background: rgba(0,0,0,0.2);
@@ -95,7 +94,7 @@
         .uv-fill {
             height: 100%; width: 0%;
             border-radius: 5px;
-            background: linear-gradient(90deg, #22c55e, #eab308, #f97316, #ef4444, #a855f7); /* Dégradé vert à violet */
+            background: linear-gradient(90deg, #22c55e, #eab308, #f97316, #ef4444, #a855f7);
             transition: width 1s ease-in-out;
         }
 
@@ -174,19 +173,20 @@
         const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
         document.getElementById('currentDate').textContent = new Date().toLocaleDateString('fr-FR', options);
 
-        // ÉCOUTE DES DONNÉES CAPTEURS
-        onValue(ref(db, 'meteo'), (snapshot) => {
+        // ÉCOUTE DES DONNÉES (BRANCHÉ SUR LA RACINE "/")
+        onValue(ref(db, '/'), (snapshot) => {
             const data = snapshot.val();
             if (!data) return;
 
             document.getElementById('statusMsg').textContent = "Données en direct";
 
+            // On vérifie chaque valeur
             if(data.temperature !== undefined) document.getElementById("tempVal").textContent = data.temperature;
             if(data.humidite !== undefined) document.getElementById("humVal").textContent = data.humidite;
             if(data.pression !== undefined) document.getElementById("pressVal").textContent = data.pression;
             if(data.air !== undefined) document.getElementById("airVal").textContent = data.air;
 
-            // Logique UV (1 à 100)
+            // Logique UV
             if(data.uv !== undefined) {
                 document.getElementById("uvVal").textContent = data.uv;
                 document.getElementById("uvBar").style.width = Math.min(data.uv, 100) + "%";
